@@ -97,8 +97,57 @@ instacart %>%
 accel = read_csv(file = "./accel_data.csv") %>%
   janitor::clean_names()
 
+  
+# pivoting data to tidy
+  accelerometer = accel %>%
+  pivot_longer(
+    accel, 
+    activity_1:activity_47, 
+    names_to = "week",
+    values_to = "activity"
+)
+  
+  
+  accelerometer$day_total = rowSums(accelerometer[,c(5:1444)])
+ 
+#
+```
 
 # Problem 3
 ```{r}
 # importing data
 data("ny_noaa")
+
+noaa = 
+  ny_noaa %>% 
+  as_tibble(noaa) %>%
+  janitor::clean_names()
+  
+  ny_noaa %>% 
+  mutate(tmax = as.numeric(tmax))
+  
+  0 < snow < 100 by separate years
+  
+  my_sample %>% 
+  group_by(id, year, month) %>%
+  filter(
+    month == "January",
+    month == "July"
+  ) %>% 
+  summarize(
+    mean_tmax = mean(tmax)) %>%
+  ggplot(aes(x = year, y = mean_tmax)) + geom_density(apha = 0.5, color = "blue") + facet_grid(. ~ month)
+  
+  ny_noaa_tidy %>%
+    filter(
+    month %in% c("January","July")) %>% 
+  group_by(month, year, id) %>% 
+  summarize(
+    tmax_mean = mean(tmax, na.rm = TRUE)
+  ) %>% 
+  ggplot(aes(x = year, y = tmax_mean, group = id)) +
+  geom_line(alpha = 0.5) +
+  facet_grid(.~month)
+
+# 
+```
