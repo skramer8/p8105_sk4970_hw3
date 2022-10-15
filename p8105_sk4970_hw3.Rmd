@@ -97,20 +97,36 @@ instacart %>%
 accel = read_csv(file = "./accel_data.csv") %>%
   janitor::clean_names()
 
-  
 # pivoting data to tidy
-  accelerometer = accel %>%
+  acceler = 
   pivot_longer(
     accel, 
-    activity_1:activity_47, 
-    names_to = "week",
-    values_to = "activity"
-)
+    activity_1:activity_1440, 
+    names_to = "activity_num",
+    names_repair = "minimal", 
+    values_to = "activity") 
+    
+  accelerometer = subset(acceler, select = -activity_num)
   
-  
-  accelerometer$day_total = rowSums(accelerometer[,c(5:1444)])
+# create weekday vs. weekend variable
+ accelerometer %>%
+   mutate(day_type = case_when(day == Saturday ~ 'weekend', day == Sunday ~ 'weekend', TRUE ~ 'weekday'))
  
-#
+ ## the data set has 5 variables--week, day id, day, activity, and day type with 50,400 observations.
+
+# total activity variable 
+ accelerometer %>%
+   group_by(day_id) %>%
+   mutate(sum_by_group = sum(activity)) %>%
+   table
+ 
+ ## sums are the same for each day
+  
+# plot of 24-hour activity 
+ ggplot(accelerometer, aes(x = day_id, y = activity)) +
+      geom_line(aes(color = day), alpha = .3)
+        
+ ## there seems to be increased activity at the beginning and end of the week.
 ```
 
 # Problem 3
