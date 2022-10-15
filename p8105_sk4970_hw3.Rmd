@@ -110,7 +110,7 @@ accel = read_csv(file = "./accel_data.csv") %>%
   
 # create weekday vs. weekend variable
  accelerometer %>%
-   mutate(day_type = case_when(day == Saturday ~ 'weekend', day == Sunday ~ 'weekend', TRUE ~ 'weekday'))
+   mutate(day_type = case_when(day == 'Saturday' ~ 'weekend', day == 'Sunday' ~ 'weekend', TRUE ~ 'weekday'))
  
  ## the data set has 5 variables--week, day id, day, activity, and day type with 50,400 observations.
 
@@ -134,36 +134,49 @@ accel = read_csv(file = "./accel_data.csv") %>%
 # importing data
 data("ny_noaa")
 
+# cleaning up data including separating date variable, making preciption in mm and temps to degrees C)
 noaa = 
   ny_noaa %>% 
-  as_tibble(noaa) %>%
-  janitor::clean_names()
+  as_tibble(ny_noaa) %>%
+  janitor::clean_names() %>%
+  na.omit("") %>%
+  separate(col = date, into = c('year','month', 'day'), sep = '-')  %>%
+  mutate(perc = prcp * 10) %>%
+  mutate(tmax = as.numeric(tmax)) %>%
+  mutate(tmin = as.numeric(tmin)) %>%
+  mutate(max_temp = tmax * 10) %>%
+  mutate(min_temp = tmin * 10) 
   
-  ny_noaa %>% 
-  mutate(tmax = as.numeric(tmax))
-  
-  0 < snow < 100 by separate years
-  
-  my_sample %>% 
-  group_by(id, year, month) %>%
+## there are many missing values for some measurements so I removed them. There are 12 variables and over 1 million observations. Preciption, snowfall, and snow depth are all in mm. Temps are in degrees C. 
+
+
+sort(table('snow'), decreasing = TRUE)
+## 1 mm of snowfall is the most commonly observed value
+
+# two-panel plot Jan. & July max temp by year
+  noaa %>%
+  group_by(month, year, id) %>% 
   filter(
     month == "January",
-    month == "July"
-  ) %>% 
+    month == "July") %>% 
   summarize(
-    mean_tmax = mean(tmax)) %>%
-  ggplot(aes(x = year, y = mean_tmax)) + geom_density(apha = 0.5, color = "blue") + facet_grid(. ~ month)
-  
-  ny_noaa_tidy %>%
-    filter(
-    month %in% c("January","July")) %>% 
-  group_by(month, year, id) %>% 
-  summarize(
-    tmax_mean = mean(tmax, na.rm = TRUE)
+    tmax_mean = mean(max_temp, na.rm = TRUE), .groups = 'drop'
   ) %>% 
   ggplot(aes(x = year, y = tmax_mean, group = id)) +
   geom_line(alpha = 0.5) +
-  facet_grid(.~month)
+  facet_grid(. ~ 'month')
 
-# 
+  
+## There is a higher max temp in July. There are some outliers in January.
+  
+# two-panel plot with tmax vs. tmix and plot showing 0 > snowfall < 100 by year
+  noaa %>%
+    group_by(year) %>%
+    filter(snow > 0 & snow < 100) %>%
+  ggplot(aes(x = min_temp, y = max_temp)) +
+    geom_point(aes(color = snow), alpha = 0.3)
+    facet_grid(. ~ year)
+  
+  
+
 ```
