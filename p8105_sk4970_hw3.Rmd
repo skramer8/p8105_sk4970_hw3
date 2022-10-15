@@ -91,4 +91,14 @@ instacart %>%
   knitr::kable(digits = 2)
 ```
 
+# Problem 2
+```{r}
+# importing data
+accel = read_csv(file = "./accel_data.csv") %>%
+  janitor::clean_names()
 
+
+# Problem 3
+```{r}
+# importing data
+data("ny_noaa")
